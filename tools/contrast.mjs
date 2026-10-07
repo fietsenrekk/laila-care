@@ -8,7 +8,7 @@ const mix = (a, b, t) => '#' + hex(a).map((c, i) => Math.round(c * t + hex(b)[i]
 
 const P = { blauw: '#1E3A5F', goud: '#D4AF37', grijs: '#E9ECEF', wit: '#FFFFFF' };
 const verdict = r => r >= 7 ? 'AAA' : r >= 4.5 ? 'AA' : r >= 3 ? 'AA-large/UI only' : 'FAIL';
-if (process.argv[1].endsWith('contrast.mjs')) {
+if ((process.argv[1] || '').endsWith('contrast.mjs')) {
   console.log('Given palette, every pairing:');
   const k = Object.keys(P);
   for (const a of k) for (const b of k) if (a < b) {
