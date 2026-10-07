@@ -1,0 +1,17 @@
+{
+ "url": "https://fietsenrekk.github.io/laila-care/podologie/",
+ "scores": {
+  "performance": 100,
+  "accessibility": 100,
+  "best-practices": 100,
+  "seo": 100
+ },
+ "metrics": {
+  "LCP": 1488.6371,
+  "TBT": 44,
+  "CLS": 0,
+  "FCP": 1007.6371,
+  "SI": 1007.6371
+ },
+ "fetchTime": "2026-10-07T19:58:21.386Z"
+}

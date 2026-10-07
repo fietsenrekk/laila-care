@@ -73,3 +73,17 @@ home HTML 75.5 KB gz. Rounded coordinates plus one sprite per page: 24.4 KB gz.
   the element only. Home Lighthouse: 95 → 98–100.
 - The line's build moved into the ResizeObserver callback (layout already clean) instead
   of a timer, which removed the last forced reflow.
+
+**Live verification and two fixes found there.**
+- Deployed to https://fietsenrekk.github.io/laila-care/. Live: Lighthouse 100/100/100/100 on
+  6 routes; axe 0 across 68 runs; 19/19 behaviour checks; no console errors on 17 routes ×
+  2 widths; deep 404 renders with fonts and a working way home.
+- The schema.org validator rejected `medicalSpecialty` and `availableLanguage` on
+  `MedicalBusiness`. Fixed: the entity is typed `MedicalBusiness` + `MedicalOrganization`,
+  and the languages sit on a `ContactPoint`. 0 errors.
+- INP measured on real clicks at 4x CPU (`tools/inp.mjs`): the text-size click took
+  264–416 ms. A trace showed 240 ms of layout: every text run reflowing at the new size.
+  Removing text-wrap, hyphenation or the sprite made no difference. Fix: with JS, size
+  follows `html[data-ts]`, set one task after the click (yield), so the selected state
+  paints at once. The no-JS `:has()` rules are gated off once `site.js` attaches
+  (`html.prefs-js`). Text-size click 48–72 ms; worst interaction 96–112 ms.

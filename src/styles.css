@@ -47,9 +47,9 @@
    radio rules carry an id, so whatever the visitor last clicked always wins. */
 html[data-ts="2"] { --ts: 1.2; }
 html[data-ts="3"] { --ts: 1.4; }
-html:has(#ts-1:checked) { --ts: 1; }
-html:has(#ts-2:checked) { --ts: 1.2; }
-html:has(#ts-3:checked) { --ts: 1.4; }
+html:not(.prefs-js):has(#ts-1:checked) { --ts: 1; }
+html:not(.prefs-js):has(#ts-2:checked) { --ts: 1.2; }
+html:not(.prefs-js):has(#ts-3:checked) { --ts: 1.4; }
 
 /* ------------------------------------------------ contrast control (§11) */
 html[data-hc="1"], html:has(#hc:checked) {
@@ -189,27 +189,27 @@ html[data-hc="1"] .masthead, html:has(#hc:checked) .masthead { background: var(-
 @media (min-width: 64em) { .nav { display: block; } .menu { display: none; } }
 @media (min-width: 80em) { .masthead__call .label-long { display: inline; } .masthead__call .label-short { display: none; } }
 @media (max-width: 76.8em) {
-  html[data-ts="2"] .nav, html:has(#ts-2:checked) .nav { display: none; }
-  html[data-ts="2"] .menu, html:has(#ts-2:checked) .menu { display: block; }
+  html[data-ts="2"] .nav, html:not(.prefs-js):has(#ts-2:checked) .nav { display: none; }
+  html[data-ts="2"] .menu, html:not(.prefs-js):has(#ts-2:checked) .menu { display: block; }
 }
 @media (max-width: 89.6em) {
-  html[data-ts="3"] .nav, html:has(#ts-3:checked) .nav { display: none; }
-  html[data-ts="3"] .menu, html:has(#ts-3:checked) .menu { display: block; }
+  html[data-ts="3"] .nav, html:not(.prefs-js):has(#ts-3:checked) .nav { display: none; }
+  html[data-ts="3"] .menu, html:not(.prefs-js):has(#ts-3:checked) .menu { display: block; }
 }
 @media (max-width: 96em) {
-  html[data-ts="2"] .masthead__call .label-long, html:has(#ts-2:checked) .masthead__call .label-long { display: none; }
-  html[data-ts="2"] .masthead__call .label-short, html:has(#ts-2:checked) .masthead__call .label-short { display: inline; }
+  html[data-ts="2"] .masthead__call .label-long, html:not(.prefs-js):has(#ts-2:checked) .masthead__call .label-long { display: none; }
+  html[data-ts="2"] .masthead__call .label-short, html:not(.prefs-js):has(#ts-2:checked) .masthead__call .label-short { display: inline; }
 }
 @media (max-width: 112em) {
-  html[data-ts="3"] .masthead__call .label-long, html:has(#ts-3:checked) .masthead__call .label-long { display: none; }
-  html[data-ts="3"] .masthead__call .label-short, html:has(#ts-3:checked) .masthead__call .label-short { display: inline; }
+  html[data-ts="3"] .masthead__call .label-long, html:not(.prefs-js):has(#ts-3:checked) .masthead__call .label-long { display: none; }
+  html[data-ts="3"] .masthead__call .label-short, html:not(.prefs-js):has(#ts-3:checked) .masthead__call .label-short { display: inline; }
 }
 /* large text on a narrow screen: the monogram alone carries the brand */
 @media (max-width: 30em) {
-  html[data-ts="2"] .brand__full, html:has(#ts-2:checked) .brand__full,
-  html[data-ts="3"] .brand__full, html:has(#ts-3:checked) .brand__full { display: none; }
-  html[data-ts="2"] .brand__mark, html:has(#ts-2:checked) .brand__mark,
-  html[data-ts="3"] .brand__mark, html:has(#ts-3:checked) .brand__mark { display: block; }
+  html[data-ts="2"] .brand__full, html:not(.prefs-js):has(#ts-2:checked) .brand__full,
+  html[data-ts="3"] .brand__full, html:not(.prefs-js):has(#ts-3:checked) .brand__full { display: none; }
+  html[data-ts="2"] .brand__mark, html:not(.prefs-js):has(#ts-2:checked) .brand__mark,
+  html[data-ts="3"] .brand__mark, html:not(.prefs-js):has(#ts-3:checked) .brand__mark { display: block; }
 }
 @media (max-width: 26em) {
   .masthead__call { padding-inline: .9rem; }

@@ -121,7 +121,8 @@ const inkOf = p => p.evaluate(() => getComputedStyle(document.documentElement).g
 {
   const p = await browser.newPage();
   const ext = new Set();
-  p.on('request', r => { const u = new URL(r.url()); if (u.hostname !== 'localhost' && !u.protocol.startsWith('data')) ext.add(u.hostname); });
+  const own = new URL(BASE).hostname;
+  p.on('request', r => { const u = new URL(r.url()); if (u.hostname !== own && !u.protocol.startsWith('data')) ext.add(u.hostname); });
   for (const r of ['/', '/thuisverpleging/', '/podologie/', '/tarieven/', '/contact/', '/en/']) await p.goto(BASE + r, { waitUntil: 'networkidle0' });
   check(ext.size === 0, `privacy: no third-party requests on 6 routes (${[...ext].join(', ') || 'none'})`);
   await p.close();

@@ -1,0 +1,17 @@
+{
+ "url": "https://fietsenrekk.github.io/laila-care/tarieven/",
+ "scores": {
+  "performance": 100,
+  "accessibility": 100,
+  "best-practices": 100,
+  "seo": 100
+ },
+ "metrics": {
+  "LCP": 1483.9724,
+  "TBT": 40,
+  "CLS": 0,
+  "FCP": 1027.9724,
+  "SI": 1027.9724
+ },
+ "fetchTime": "2026-10-07T19:58:29.251Z"
+}

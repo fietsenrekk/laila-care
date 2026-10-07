@@ -1,0 +1,17 @@
+{
+ "url": "https://fietsenrekk.github.io/laila-care/contact/",
+ "scores": {
+  "performance": 100,
+  "accessibility": 100,
+  "best-practices": 100,
+  "seo": 100
+ },
+ "metrics": {
+  "LCP": 1508.3821,
+  "TBT": 64,
+  "CLS": 0,
+  "FCP": 1028.3821,
+  "SI": 1028.3821
+ },
+ "fetchTime": "2026-10-07T19:58:37.172Z"
+}

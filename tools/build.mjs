@@ -190,7 +190,9 @@ function jsonLd(L, route) {
   const a = SITE.address;
   const org = {
     '@context': 'https://schema.org',
-    '@type': 'MedicalBusiness',
+    // MedicalBusiness carries address/geo/hours; MedicalOrganization owns medicalSpecialty
+    // (the schema.org validator rejected medicalSpecialty on MedicalBusiness alone).
+    '@type': ['MedicalBusiness', 'MedicalOrganization'],
     '@id': abs('/') + '#business',
     name: SITE.name,
     legalName: SITE.legalName,
@@ -203,7 +205,7 @@ function jsonLd(L, route) {
     address: { '@type': 'PostalAddress', streetAddress: a.street, postalCode: a.postalCode, addressLocality: a.locality, addressRegion: a.region, addressCountry: a.country },
     geo: { '@type': 'GeoCoordinates', latitude: a.geo.lat, longitude: a.geo.lon },
     medicalSpecialty: ['https://schema.org/Nursing', 'https://schema.org/Podiatric'],
-    availableLanguage: ['nl', 'en'],
+    contactPoint: { '@type': 'ContactPoint', telephone: SITE.phone.intl.replace(/\s/g, ''), contactType: 'customer service', availableLanguage: ['nl', 'en'], areaServed: 'BE' },
     ...(SITE.kbo ? { vatID: SITE.kbo } : {}),
     ...(SITE.hours ? { openingHoursSpecification: SITE.hours.map(h => ({ '@type': 'OpeningHoursSpecification', dayOfWeek: h.days, opens: h.opens, closes: h.closes })) } : {}),
     makesOffer: [

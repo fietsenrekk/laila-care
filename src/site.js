@@ -13,11 +13,18 @@
   const hasRO = 'ResizeObserver' in window; // read by relayout(), which handlers above section 5 call
   const store = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} };
 
-  /* ------------------------------------------------ 1. preferences */
+  /* ------------------------------------------------ 1. preferences
+     Without JS the radios drive the text size directly through :has(). With JS,
+     html[data-ts] drives it, set one task after the click: the selected state paints
+     at once, and the full-page reflow at the new size (240 ms of layout at 4x CPU)
+     lands in the next task instead of inside the interaction. */
+  const setTs = v => { if (v === '1') d.removeAttribute('data-ts'); else d.setAttribute('data-ts', v); };
+  const checkedTs = document.querySelector('input[name="ts"]:checked');
+  if (checkedTs) setTs(checkedTs.value); // a click made before this script loaded still counts
+  d.classList.add('prefs-js');
   document.querySelectorAll('input[name="ts"]').forEach(r => r.addEventListener('change', () => {
-    if (r.value === '1') d.removeAttribute('data-ts'); else d.setAttribute('data-ts', r.value);
     store('lc-ts', r.value === '1' ? null : r.value);
-    relayout();
+    requestAnimationFrame(() => setTimeout(() => { setTs(r.value); relayout(); }, 0));
   }));
   const hc = document.getElementById('hc');
   if (hc) hc.addEventListener('change', () => {
@@ -209,7 +216,12 @@
   // page's size, so the observer alone covers them.
   let t = 0;
   function relayout() { if (hasRO) return; clearTimeout(t); t = setTimeout(build, 80); }
-  if (hasRO) new ResizeObserver(build).observe(page);
+  // ResizeObserver callbacks run before the frame paints, so building there would add
+  // to the latency of whatever caused the resize (a text-size click measured 264 ms at 4x
+  // CPU). The build waits for the next frame instead: the click paints first, the line
+  // follows one frame later, and layout is still clean when it reads it.
+  let queuedBuild = 0;
+  if (hasRO) new ResizeObserver(() => { cancelAnimationFrame(queuedBuild); queuedBuild = requestAnimationFrame(build); }).observe(page);
   else { addEventListener('resize', relayout); addEventListener('load', relayout); }
   reduce.addEventListener && reduce.addEventListener('change', () => { built = false; build(); });
 })();
