@@ -1,0 +1,17 @@
+{
+ "url": "http://localhost:4221/laila-care/contact/",
+ "scores": {
+  "performance": 100,
+  "accessibility": 100,
+  "best-practices": 100,
+  "seo": 100
+ },
+ "metrics": {
+  "LCP": 1509.2756,
+  "TBT": 38,
+  "CLS": 0,
+  "FCP": 963.2755999999999,
+  "SI": 963.2755999999999
+ },
+ "fetchTime": "2026-10-07T19:47:47.389Z"
+}

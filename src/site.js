@@ -10,6 +10,7 @@
 (() => {
   const d = document.documentElement;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const hasRO = 'ResizeObserver' in window; // read by relayout(), which handlers above section 5 call
   const store = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} };
 
   /* ------------------------------------------------ 1. preferences */
@@ -53,16 +54,38 @@
   const motionOK = () => !reduce.matches;
   const settle = [...document.querySelectorAll('[data-settle]')];
   if (motionOK() && 'IntersectionObserver' in window) {
-    d.classList.add('motion');
-    const vh = innerHeight;
-    // Only what starts below the fold is ever hidden. The answer paints first.
-    const pending = settle.filter(el => el.getBoundingClientRect().top > vh * 0.92);
-    pending.forEach(el => el.classList.add('is-pending'));
+    // Only what starts below the fold is ever hidden; the answer paints first.
+    // The observer's first callback says where each element is without forcing a
+    // synchronous layout (reading getBoundingClientRect here cost a 200ms task at 4x CPU),
+    // and the class lands on the element itself, never on <html>, so only it restyles.
+    const pending = [];
+    const seen = new WeakSet();
     const io = new IntersectionObserver(entries => {
-      for (const en of entries) if (en.isIntersecting) { en.target.classList.remove('is-pending'); io.unobserve(en.target); }
+      for (const en of entries) {
+        const el = en.target;
+        if (!seen.has(el)) {
+          seen.add(el);
+          if (!en.isIntersecting && en.boundingClientRect.top > (en.rootBounds ? en.rootBounds.height : innerHeight) * 0.92) {
+            el.classList.add('is-pending'); pending.push(el);
+          } else io.unobserve(el);
+          continue;
+        }
+        if (en.isIntersecting) { el.classList.remove('is-pending'); io.unobserve(el); }
+      }
     }, { rootMargin: '0px 0px -8% 0px' });
-    pending.forEach(el => io.observe(el));
-    // Safety net: nothing stays hidden if the observer never fires (print, odd embeds).
+    settle.forEach(el => io.observe(el));
+    // The observer only reports what intersects now: a jump (End key, an anchor
+    // link) skips past sections it never sees. Anything at or above the reading
+    // line is revealed on scroll too, so nothing can stay hidden behind the reader.
+    let queued = false;
+    const sweep = () => {
+      queued = false;
+      for (const el of pending) if (el.classList.contains('is-pending') && el.getBoundingClientRect().top < innerHeight * 0.92) {
+        el.classList.remove('is-pending'); io.unobserve(el);
+      }
+    };
+    addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(sweep); } }, { passive: true });
+    addEventListener('hashchange', sweep);
     addEventListener('beforeprint', () => pending.forEach(el => el.classList.remove('is-pending')));
   }
 
@@ -77,7 +100,7 @@
   const path = svg && svg.querySelector('path');
   if (!svg) return;
 
-  let table = [], total = 0, shown = 0, target = 0, raf = 0;
+  let total = 0, shown = 0, target = 0, raf = 0;
   const calm = document.body.hasAttribute('data-calm');
 
   function anchors() {
@@ -120,10 +143,11 @@
   }
 
   function build() {
+    // every layout read first, then the writes: one layout pass, not two
     const h = page.offsetHeight, w = page.offsetWidth;
+    const { pts, lane } = anchors();
     svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
     svg.setAttribute('width', w); svg.setAttribute('height', h);
-    const { pts, lane } = anchors();
     if (pts.length < 2) { path.setAttribute('d', ''); return; }
     // tip -> lane -> [lane -> gap top, gap bottom -> lane]* -> footprint
     const seq = [pts[0], { x: lane, y: pts[0].y + Math.max(90, innerHeight * 0.14), run: 90 }];
@@ -138,37 +162,35 @@
       if (Math.abs(p.x - lane) > 1) seq.push({ x: lane, y: p.y + 140, run: 140 });
     }
     path.setAttribute('d', route(seq));
-    total = path.getTotalLength();
-    // y -> drawn length lookup: the furthest length whose point lies above y
-    table = [];
-    let maxY = -Infinity;
-    for (let l = 0; l <= total; l += 12) {
-      maxY = Math.max(maxY, path.getPointAtLength(l).y);
-      table.push([maxY, l]);
-    }
-    table.push([Infinity, total]);
-    path.style.strokeDasharray = `${total} ${total}`;
-    if (!motionOK()) { shown = target = total; path.style.strokeDashoffset = 0; return; }
-    target = Math.max(target, lengthAt(readLine()));
+    total = h;
+    if (!motionOK()) { shown = target = h; paint(); return; }
+    target = Math.max(target, readLine());
+    // The first build lands already drawn to the reading position: the line only
+    // animates in response to the visitor's scroll, never as a load-time effect.
+    if (!built) { shown = target; built = true; paint(); return; }
     shown = Math.min(shown, target);
-    path.style.strokeDashoffset = total - shown;
+    paint();
     tick();
   }
+  let built = false;
 
-  const readLine = () => scrollY + innerHeight * 0.68 - (page.getBoundingClientRect().top + scrollY);
-  function lengthAt(y) {
-    let lo = 0, hi = table.length - 1;
-    while (lo < hi) { const m = (lo + hi) >> 1; if (table[m][0] < y) lo = m + 1; else hi = m; }
-    return table[lo] ? table[lo][1] : total;
-  }
+  /* The line is revealed by a clip that grows downward, not by stroke-dashoffset:
+     a dash change re-rasterises the whole path every frame (measured +3-5ms p95 at
+     4x CPU), a clip change does not. The route only ever moves down the page, so a
+     downward reveal reads as drawing. */
+  const readLine = () => scrollY + innerHeight * 0.8 - (page.getBoundingClientRect().top + scrollY);
+  const paint = () => {
+    svg.style.clipPath = shown >= total ? 'none' : `inset(0 0 ${Math.max(0, total - shown).toFixed(0)}px 0)`;
+    window.__lcThread = { shown, total };
+  };
   function tick() {
     cancelAnimationFrame(raf);
     const k = calm ? 0.06 : 0.11;
     const loop = () => {
       const diff = target - shown;
-      if (Math.abs(diff) < 0.5) { shown = target; path.style.strokeDashoffset = total - shown; return; }
+      if (Math.abs(diff) < 0.5) { shown = target; paint(); return; }
       shown += diff * k;
-      path.style.strokeDashoffset = total - shown;
+      paint();
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -176,15 +198,18 @@
   addEventListener('scroll', () => {
     if (!motionOK() || !total) return;
     // the line only ever draws forward; it does not un-draw when scrolling back
-    target = Math.max(target, lengthAt(readLine()));
-    tick();
+    const y = Math.min(total, readLine());
+    if (y > target + 1) { target = y; tick(); }
   }, { passive: true });
 
+  // The line is rebuilt inside the ResizeObserver callback: it runs right after
+  // layout, so reading positions there is free (a timer-driven build forced a
+  // synchronous reflow). Every change that moves an anchor (fonts swapping in,
+  // the text-size control, a resize, an opened <details>, the map) changes the
+  // page's size, so the observer alone covers them.
   let t = 0;
-  function relayout() { clearTimeout(t); t = setTimeout(build, 60); }
-  addEventListener('resize', relayout);
-  if ('ResizeObserver' in window) new ResizeObserver(relayout).observe(page);
-  reduce.addEventListener && reduce.addEventListener('change', relayout);
-  (document.fonts ? document.fonts.ready : Promise.resolve()).then(build);
-  addEventListener('load', relayout);
+  function relayout() { if (hasRO) return; clearTimeout(t); t = setTimeout(build, 80); }
+  if (hasRO) new ResizeObserver(build).observe(page);
+  else { addEventListener('resize', relayout); addEventListener('load', relayout); }
+  reduce.addEventListener && reduce.addEventListener('change', () => { built = false; build(); });
 })();

@@ -79,6 +79,17 @@ function picture(from, name, alt, { eager = false, cls = 'photo--band', caption 
 </figure>`;
 }
 
+/* ---------------------------------------------------------------- CSS
+   Inlined into every page (5 KB gz): it removes the one render-blocking request
+   between first byte and first paint. Font URLs are rewritten per page depth.
+   Also written to assets/css/site.css for reference and the print/debug path. */
+// CSS: strip comments and collapse whitespace. Font URLs are relative to the CSS file.
+const css = fs.readFileSync(path.join(ROOT, 'src/styles.css'), 'utf8')
+  .replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').replace(/\s*([{};,>])\s*/g, '$1').replace(/;}/g, '}').trim();
+fs.mkdirSync(path.join(DIST, 'assets/css'), { recursive: true });
+fs.writeFileSync(path.join(DIST, 'assets/css/site.css'), css);
+const cssFor = route => css.replace(/url\('\.\.\/fonts\//g, `url('${asset(route, 'fonts/')}`);
+
 /* ---------------------------------------------------------------- shared chrome */
 const INLINE_HEAD = `(function(){var d=document.documentElement;d.className+=' js';try{var s=localStorage.getItem('lc-ts'),c=localStorage.getItem('lc-hc');if(s==='2'||s==='3')d.setAttribute('data-ts',s);if(c==='1')d.setAttribute('data-hc','1');if(c==='0')d.setAttribute('data-hc','0')}catch(e){}})();`;
 // Runs right after the controls are parsed, so the radios match the stored choice before first paint.
@@ -87,7 +98,7 @@ const sha = s => "'sha256-" + crypto.createHash('sha256').update(s).digest('base
 const CSP = [
   "default-src 'self'",
   `script-src 'self' ${sha(INLINE_HEAD)} ${sha(INLINE_SYNC)}`,
-  "style-src 'self'",
+  // style hashes are added per page (the inlined CSS differs only in font paths)
   "img-src 'self' data:",
   "font-src 'self'",
   "frame-src https://www.openstreetmap.org",
@@ -215,7 +226,7 @@ function layout({ L, key, route, alt, page, body, calm = false }) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="${CSP}">
+<meta http-equiv="Content-Security-Policy" content="${CSP}; style-src 'self' ${sha(cssFor(route))}">
 <title>${esc(page.title)}</title>
 <meta name="description" content="${esc(page.description)}">
 <link rel="canonical" href="${abs(route)}">
@@ -236,7 +247,7 @@ ${hreflang}
 <link rel="manifest" href="${rel(route, '/manifest.webmanifest')}">
 <link rel="preload" href="${asset(route, 'fonts/marcellus-400.woff2')}" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${asset(route, 'fonts/atkinson-next-roman-var.woff2')}" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="${asset(route, 'css/site.css')}?v=${VERSION}">
+<style>${cssFor(route)}</style>
 <script>${INLINE_HEAD}</script>
 <script src="${asset(route, 'js/site.js')}?v=${VERSION}" defer></script>
 ${key === 'home' || key === 'contact' ? jsonLd(L, route) : ''}
@@ -525,11 +536,7 @@ fs.copyFileSync(path.join(DIST, 'assets/brand/favicon.ico'), path.join(DIST, 'fa
 if (fs.existsSync(path.join(ROOT, 'assets/og')))
   for (const f of fs.readdirSync(path.join(ROOT, 'assets/og'))) copy(path.join(ROOT, 'assets/og', f), path.join(DIST, 'assets/og', f));
 
-// CSS: strip comments and collapse whitespace. Font URLs are relative to the CSS file.
-const css = fs.readFileSync(path.join(ROOT, 'src/styles.css'), 'utf8')
-  .replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').replace(/\s*([{};,>])\s*/g, '$1').replace(/;}/g, '}').trim();
-fs.mkdirSync(path.join(DIST, 'assets/css'), { recursive: true });
-fs.writeFileSync(path.join(DIST, 'assets/css/site.css'), css);
+
 
 // JS: the site script plus the swoosh centreline it draws from.
 const line = (await import('../src/swoosh-line.js')).default;

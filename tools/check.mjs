@@ -113,7 +113,7 @@ const visible = s => s.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<style
       if (!csp.includes(h)) issues.push(rel(f));
     }
   }
-  issues.length ? bad(`inline script not covered by CSP: ${[...new Set(issues)].join(', ')}`) : ok('every inline script is hash-allowed by the page CSP');
+  issues.length ? bad(`inline script/style not covered by CSP: ${[...new Set(issues)].join(', ')}`) : ok('every inline script and style is hash-allowed by the page CSP');
 }
 
 /* 7. structured data parses and carries the real facts */

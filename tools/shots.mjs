@@ -56,7 +56,7 @@ for (const r of ROUTES.filter(r => !filter || r.includes(filter) || (filter === 
         .slice(0, 4).map(el => el.tagName.toLowerCase() + '.' + [...el.classList].join('.') + ' ' + Math.round(el.getBoundingClientRect().right));
       const p = document.querySelector('.thread path');
       let thread = null;
-      if (p && p.getAttribute('d')) { const t = p.getTotalLength(); const off = parseFloat(getComputedStyle(p).strokeDashoffset) || 0; thread = { len: Math.round(t), drawn: +(1 - off / t).toFixed(2) }; }
+      if (p && p.getAttribute('d')) { const st = window.__lcThread || { shown: 1, total: 1 }; thread = { len: Math.round(p.getTotalLength()), drawn: +(st.shown / st.total).toFixed(2) }; }
       return { sw: de.scrollWidth, cw: de.clientWidth, h: de.scrollHeight, over, thread, fs: getComputedStyle(de).fontSize };
     });
     const name = `${(r === '/' ? 'home' : r.replace(/^\/|\/$/g, '').replace(/[\/.]/g, '-'))}-${w}${opt('ts') ? '-ts' + opt('ts') : ''}${opt('hc') ? '-hc' : ''}${opt('rm') ? '-rm' : ''}${opt('nojs') ? '-nojs' : ''}.png`;

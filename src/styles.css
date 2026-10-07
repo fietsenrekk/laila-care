@@ -7,9 +7,6 @@
 @font-face { font-family: 'Marcellus'; src: url('../fonts/marcellus-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
 @font-face { font-family: 'Atkinson Next'; src: url('../fonts/atkinson-next-roman-var.woff2') format('woff2'); font-weight: 200 800; font-style: normal; font-display: swap; }
 @font-face { font-family: 'Atkinson Next'; src: url('../fonts/atkinson-next-italic-var.woff2') format('woff2'); font-weight: 200 800; font-style: italic; font-display: swap; }
-/* metric-matched fallbacks keep the swap from shifting layout */
-@font-face { font-family: 'Marcellus Fallback'; src: local('Georgia'), local('Times New Roman'); size-adjust: 104%; ascent-override: 92%; descent-override: 26%; }
-@font-face { font-family: 'Atkinson Fallback'; src: local('Arial'), local('Helvetica'); size-adjust: 103%; ascent-override: 94%; descent-override: 24%; }
 
 :root {
   --blauw: #1E3A5F;
@@ -34,8 +31,8 @@
   --logo-blauw: var(--blauw); --logo-goud: var(--goud);
 
   --ts: 1;
-  --font-display: 'Marcellus', 'Marcellus Fallback', Georgia, serif;
-  --font-body: 'Atkinson Next', 'Atkinson Fallback', Arial, sans-serif;
+  --font-display: 'Marcellus', Georgia, serif;
+  --font-body: 'Atkinson Next', Arial, sans-serif;
 
   --gutter: max(22px, env(safe-area-inset-left), min(5vw, 56px));
   --wrap: 78rem;
@@ -379,10 +376,11 @@ html[data-hc="1"] .masthead, html:has(#hc:checked) .masthead { background: var(-
 .site-foot__legal p { margin: 0; max-width: none; }
 
 /* ------------------------------------------------ motion: settle (§12.2)
-   Hidden state exists only when JS has marked the element as below the fold
-   on load and motion is allowed. Nothing above the fold ever animates in. */
-html.motion [data-settle].is-pending { opacity: 0; transform: translateY(16px); }
-html.motion [data-settle] { transition: opacity .8s var(--ease), transform .8s var(--ease); }
+   The hidden state (.is-pending) is only ever added by JS, only to elements below
+   the fold on load, and never under reduced motion. Nothing above the fold animates in. */
+[data-settle].is-pending { opacity: 0; transform: translateY(16px); }
+/* hiding is instant (offscreen), only the reveal animates */
+[data-settle]:not(.is-pending) { transition: opacity .8s var(--ease), transform .8s var(--ease); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; scroll-behavior: auto !important; }
 }
@@ -423,3 +421,9 @@ html.motion [data-settle] { transition: opacity .8s var(--ease), transform .8s v
 /* .band--deep a would otherwise win and paint white text on gold (2.10:1) */
 .band--deep .btn--gold { color: var(--cta2-fg); }
 .band--deep .btn--gold:hover { color: var(--on-deep); }
+/* split-layout headings sit in a narrow column: smaller, and hyphenated by language
+   rules instead of broken anywhere ("terugbetali-ng") */
+.split > h2, .split > div > h2 { font-size: min(clamp(1.875rem, 1.5rem + 1.2vw, 2.5rem), 9vw); hyphens: auto; -webkit-hyphens: auto; overflow-wrap: normal; }
+@media (min-width: 60em) { .split { grid-template-columns: 20rem minmax(0, 1fr); } }
+/* at the largest text on a phone, "Bel" and the number may stack; the number never breaks */
+.btn { flex-wrap: wrap; max-width: 100%; row-gap: .1em; }

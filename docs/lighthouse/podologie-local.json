@@ -1,0 +1,17 @@
+{
+ "url": "http://localhost:4221/laila-care/podologie/",
+ "scores": {
+  "performance": 99,
+  "accessibility": 100,
+  "best-practices": 100,
+  "seo": 100
+ },
+ "metrics": {
+  "LCP": 1661.7774,
+  "TBT": 71,
+  "CLS": 0,
+  "FCP": 991.7774,
+  "SI": 991.7774
+ },
+ "fetchTime": "2026-10-07T19:47:31.316Z"
+}

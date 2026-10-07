@@ -1,0 +1,17 @@
+{
+ "url": "http://localhost:4221/laila-care/thuisverpleging/",
+ "scores": {
+  "performance": 100,
+  "accessibility": 100,
+  "best-practices": 100,
+  "seo": 100
+ },
+ "metrics": {
+  "LCP": 1660.1214,
+  "TBT": 39,
+  "CLS": 0,
+  "FCP": 979.1214,
+  "SI": 979.1214
+ },
+ "fetchTime": "2026-10-07T19:47:22.610Z"
+}
