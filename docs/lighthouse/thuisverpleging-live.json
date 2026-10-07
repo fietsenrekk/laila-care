@@ -1,17 +1,17 @@
 {
  "url": "https://fietsenrekk.github.io/laila-care/thuisverpleging/",
  "scores": {
-  "performance": 100,
+  "performance": 99,
   "accessibility": 100,
   "best-practices": 100,
   "seo": 100
  },
  "metrics": {
-  "LCP": 1377.6004,
-  "TBT": 0,
+  "LCP": 1624.6216,
+  "TBT": 56,
   "CLS": 0,
-  "FCP": 1024.6004,
-  "SI": 1024.6004
+  "FCP": 1003.6216,
+  "SI": 3509.0847939996856
  },
- "fetchTime": "2026-10-07T19:58:13.339Z"
+ "fetchTime": "2026-10-07T20:16:20.955Z"
 }

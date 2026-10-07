@@ -28,7 +28,7 @@ async function shot(name, { w, h, dpr = 1, url = '/', scrollTo, ts, hc, outW, ou
     // scroll in steps, as a reader would, so the line draws up to this point
     await p.evaluate(async sel => {
       const el = document.querySelector(sel);
-      const y = el.getBoundingClientRect().top + scrollY - innerHeight * 0.18;
+      const y = el.getBoundingClientRect().top + scrollY - 108;
       for (let s = 0; s <= y; s += 120) { scrollTo(0, s); await new Promise(r => setTimeout(r, 40)); }
       scrollTo(0, y);
     }, scrollTo);
@@ -40,7 +40,7 @@ async function shot(name, { w, h, dpr = 1, url = '/', scrollTo, ts, hc, outW, ou
   await p.close();
   console.log('  ' + name);
 }
-await shot('desktop-1200x900', { w: 1200, h: 900, scrollTo: '.duo' });
+await shot('desktop-1200x900', { w: 1200, h: 900, scrollTo: '.duo__head' });
 await shot('mobile-750x1624', { w: 375, h: 812, dpr: 2, scrollTo: '.duo__head' });
 await shot('hero-1600x1200', { w: 1600, h: 1200 });
 await shot('a11y-1200x900', { w: 1200, h: 900, ts: '3', hc: true, url: '/thuisverpleging/' });
