@@ -3,7 +3,7 @@
    visitor will hear on the phone and see on paperwork. */
 
 export const UI = {
-  lang: 'en', locale: 'en_GB', skip: 'Skip to content',
+  lang: 'en', locale: 'en_GB', displaySettings: 'Display settings', skip: 'Skip to content',
   textSize: 'Text size', textSizeShort: 'Text', contrastShort: 'Contrast', sizes: ['Normal text', 'Larger text', 'Largest text'],
   contrast: 'High contrast', on: 'on', off: 'off',
   menu: 'Menu', close: 'Close', mainNav: 'Main navigation', footNav: 'Footer',

@@ -47,11 +47,13 @@ const ICON = {
 };
 
 /* ---------------------------------------------------------------- brand fragments */
-const logoHorizontal = label => `<svg viewBox="${BRAND.horizViewBox}" role="img" aria-label="${esc(label)}">${BRAND.horizInner}</svg>`;
-const logoStacked = label => `<svg viewBox="${BRAND.stackedViewBox}" role="img" aria-label="${esc(label)}">${BRAND.stackedInner}</svg>`;
+const useSvg = (id, [w, h], attrs = '') => `<svg viewBox="0 0 ${w} ${h}" ${attrs}><use href="#${id}" width="${w}" height="${h}"/></svg>`;
+const logoHorizontal = label => useSvg('lc-horiz', BRAND.horiz, `class="brand__full" role="img" aria-label="${esc(label)}"`);
+const logoMark = label => useSvg('lc-mark', BRAND.mark, `class="brand__mark" role="img" aria-label="${esc(label)}"`);
+const logoStacked = label => useSvg('lc-stacked', BRAND.stacked, `role="img" aria-label="${esc(label)}"`);
 // The swoosh's left tip, normalised to its own bbox (from src/swoosh-line.js): the thread leaves from here.
-const swoosh = (cls) => `<svg class="${cls}" viewBox="${BRAND.swooshViewBox}" aria-hidden="true" focusable="false" data-thread="0.004 0.86">${BRAND.swooshInner}</svg>`;
-const footprint = () => `<svg class="reach__foot" viewBox="${BRAND.footViewBox}" aria-hidden="true" focusable="false" data-thread="0.02 0.62" data-thread-end>${BRAND.footInner}</svg>`;
+const swoosh = (cls) => useSvg('lc-swoosh', BRAND.swoosh, `class="${cls}" aria-hidden="true" focusable="false" data-thread="0.004 0.86"`);
+const footprint = () => useSvg('lc-foot', BRAND.foot, 'class="reach__foot" aria-hidden="true" focusable="false" data-thread="0.02 0.62" data-thread-end');
 
 /* ---------------------------------------------------------------- images */
 const IMG = {
@@ -96,7 +98,7 @@ const CSP = [
 
 function accessBar(L, route, alt) {
   const U = L.UI;
-  return `<div class="access">
+  return `<section class="access" aria-label="${U.displaySettings}">
   <div class="wrap">
     <div class="access__controls">
       <fieldset class="ctl">
@@ -110,7 +112,7 @@ function accessBar(L, route, alt) {
       <a class="access__lang" href="${rel(route, alt)}" hreflang="${U.lang === 'nl' ? 'en' : 'nl'}" lang="${U.lang === 'nl' ? 'en' : 'nl'}"><span aria-hidden="true">${U.otherLangShort}</span><span class="vh">${U.otherLangLabel}</span></a>
     </div>
   </div>
-</div>`;
+</section>`;
 }
 
 function masthead(L, route, key, alt) {
@@ -119,7 +121,7 @@ function masthead(L, route, key, alt) {
   const tel = U.lang === 'en' ? SITE.phone.intl : SITE.phone.display;
   return `<header class="masthead">
   <div class="wrap">
-    <a class="brand" href="${rel(route, L.ROUTES.home)}">${logoHorizontal(`${SITE.name}, ${U.lang === 'nl' ? 'naar de startpagina' : 'home page'}`)}</a>
+    <a class="brand" href="${rel(route, L.ROUTES.home)}">${logoHorizontal(`${SITE.name}, ${U.lang === 'nl' ? 'naar de startpagina' : 'home page'}`)}${logoMark(`${SITE.name}, ${U.lang === 'nl' ? 'naar de startpagina' : 'home page'}`)}</a>
     <nav class="nav" aria-label="${U.mainNav}"><ul>${items}</ul></nav>
     <a class="btn masthead__call" href="${SITE.phone.href}">${ICON.phone}<span class="label-short">${U.call}</span><span class="label-long">${U.callLong} <span class="tel">${tel}</span></span></a>
     <details class="menu">
@@ -240,6 +242,7 @@ ${hreflang}
 ${key === 'home' || key === 'contact' ? jsonLd(L, route) : ''}
 </head>
 <body${calm ? ' data-calm' : ''}>
+<svg class="sprite" aria-hidden="true" focusable="false">${BRAND.sprite}</svg>
 <a class="skip" href="#main">${U.skip}</a>
 ${accessBar(L, route, alt || L.ROUTES.home)}
 ${masthead(L, route, key, alt || L.ROUTES.home)}
@@ -409,8 +412,8 @@ const BODIES = {
 <section class="band band--plane" aria-label="${P.nursingTitle}, ${P.podiatryTitle}">
   <div class="wrap lift">
     <div class="panels">
-      <div class="panel" data-settle><h3>${P.nursingTitle}</h3><ul>${P.nursing.map(i => `<li>${i}</li>`).join('')}</ul><a class="link-arrow" href="${rel(route, L.ROUTES.nursing)}">${L.PAGES.home.duo.nursing.more}</a></div>
-      <div class="panel" data-settle><h3>${P.podiatryTitle}</h3><ul>${P.podiatry.map(i => `<li>${i}</li>`).join('')}</ul><a class="link-arrow" href="${rel(route, L.ROUTES.podiatry)}">${L.PAGES.home.duo.podiatry.more}</a></div>
+      <div class="panel" data-settle><h2 class="minor">${P.nursingTitle}</h2><ul>${P.nursing.map(i => `<li>${i}</li>`).join('')}</ul><a class="link-arrow" href="${rel(route, L.ROUTES.nursing)}">${L.PAGES.home.duo.nursing.more}</a></div>
+      <div class="panel" data-settle><h2 class="minor">${P.podiatryTitle}</h2><ul>${P.podiatry.map(i => `<li>${i}</li>`).join('')}</ul><a class="link-arrow" href="${rel(route, L.ROUTES.podiatry)}">${L.PAGES.home.duo.podiatry.more}</a></div>
     </div>
   </div>
 </section>
@@ -466,7 +469,7 @@ ${block('trust-title', P.trustTitle, P.trust, true)}`;
     </div>
     <div class="map" data-map="${esc(embed)}" data-map-title="${esc(U.mapTitle)}">
       <div class="map__facade">
-        <svg viewBox="${BRAND.footViewBox}" aria-hidden="true" focusable="false">${BRAND.footInner}</svg>
+        ${useSvg('lc-foot', BRAND.foot, 'aria-hidden="true" focusable="false"')}
         <p><strong>${a.street}, ${a.postalCode} ${a.locality}</strong></p>
         <a class="btn btn--ghost map__btn" href="${osm}" rel="noopener">${U.mapButton}</a>
         <p>${U.mapNote}</p>

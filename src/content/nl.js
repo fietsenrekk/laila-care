@@ -4,7 +4,7 @@
    Anything unconfirmed renders only when its config value is set. */
 
 export const UI = {
-  lang: 'nl', locale: 'nl_BE', skip: 'Naar de inhoud',
+  lang: 'nl', locale: 'nl_BE', displaySettings: 'Weergave', skip: 'Naar de inhoud',
   textSize: 'Tekstgrootte', textSizeShort: 'Tekst', contrastShort: 'Contrast', sizes: ['Normale tekst', 'Grotere tekst', 'Grootste tekst'],
   contrast: 'Hoog contrast', on: 'aan', off: 'uit',
   menu: 'Menu', close: 'Sluiten', mainNav: 'Hoofdnavigatie', footNav: 'Voettekst',
@@ -230,7 +230,7 @@ export const PAGES = {
 
   notFound: {
     title: 'Pagina niet gevonden · Laila Care',
-    description: 'Deze pagina bestaat niet.',
+    description: 'Deze pagina bestaat niet. Vind de weg terug naar Laila Care, thuisverpleging en podologie in Denderbelle.',
     h1: 'Deze pagina bestaat niet',
     lead: 'Misschien is het adres veranderd. Hieronder vindt u de weg terug, of bel ons meteen.',
     home: 'Naar de startpagina',
